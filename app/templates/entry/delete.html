@@ -1,0 +1,25 @@
+{%- extends "base.html" -%}
+
+{%- block beforeContent -%}
+{{ super() }}
+{%- endblock -%}
+
+{%- block content -%}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    {{ super() }}
+    <h1 class="govuk-heading-l">Are you sure you want to delete the {{ entry.name }} entry for the {{ entry.register.name }} register?</h1>
+    <form method="post" action="{{ url_for('register.entry.delete', register_id=entry.register.id, entry_id=entry.id) }}" novalidate>
+      {{ form.csrf_token }}
+      {{ form.confirm }}
+      <div class="govuk-button-group">
+        {{ form.submit(params={
+          'preventDoubleClick': true,
+          'classes': "govuk-button--warning"
+        }) }}
+        <a class="govuk-link" href="{{ url_for('register.entry.view', register_id=entry.register.id, entry_id=entry.id) }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{%- endblock -%}

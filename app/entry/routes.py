@@ -14,12 +14,12 @@ typical CRUD pattern:
 
 from uuid import UUID
 
-from flask import flash, redirect, render_template, url_for
+from flask import flash, redirect, render_template, url_for, request
 from werkzeug import Response
 
 from app import db
 from app.entry import bp
-from app.entry.forms import EntryForm
+from app.entry.forms import EntryForm, EntryDeleteForm
 from app.models import Entry
 
 
@@ -60,3 +60,73 @@ def view(register_id: UUID, entry_id: UUID) -> str:
 
     # Render the detail page for this register
     return render_template("entry/view.html", entry=entry)
+
+@bp.route("/<uuid:entry_id>/edit", methods=["GET", "POST"])
+def edit(register_id: UUID, entry_id: UUID) -> str | Response:
+    """
+    Edit an existing Entry.
+
+    HTTP Methods:
+    - GET: Pre-populate the form with current entry data
+    - POST: Validate and update the entry if the form is valid
+
+    Parameters:
+    - register_id (UUID): The unique identifier of the  to edit
+
+    Returns:
+    - str: Rendered form page if GET or validation fails
+    - Response: Redirect to index on successful edit
+    """
+    # Load the register or show 404 if it doesn't exist
+    entry: Entry = db.get_or_404(Entry, entry_id)
+    form = EntryForm(register_id)
+
+    if request.method == "GET":
+        # Pre-fill the form with current data so user can edit it
+        form.name.data = entry.name
+    elif form.validate_on_submit():
+        # Copy validated form data into the Register object
+        entry.name = form.name.data
+
+        # Persist changes to the database
+        db.session.commit()
+
+        flash("Successfully updated entry", "success")
+        return redirect(url_for("register.view", entry_id=entry_id, register_id=register_id))
+
+    # Render the form page for GET requests or failed validation
+    return render_template("entry/edit.html", entry=entry, form=form, register_id=register_id)
+
+
+@bp.route("/<uuid:entry_id>/delete", methods=["GET", "POST"])
+def delete(register_id: UUID, entry_id: UUID) -> str | Response:
+    """
+    Delete an existing entry.
+
+    HTTP Methods:
+    - GET: Show a confirmation page to avoid accidental deletion
+    - POST: Delete the register if confirmation is given
+
+    Parameters:
+    - register_id (UUID): The unique identifier of the Register to delete
+
+    Returns:
+    - str: Rendered confirmation page if GET or validation fails
+    - Response: Redirect to index on successful deletion
+    """
+    # Load the register to delete or return 404 if not found
+    entry = db.get_or_404(Entry, entry_id)
+
+    form = EntryDeleteForm()
+
+    if form.validate_on_submit():
+        # Remove the register from the database
+        db.session.delete(entry)
+        db.session.commit()
+
+        flash("Successfully deleted entry", "success")
+        return redirect(url_for("register.view", entry_id=entry_id, register_id=register_id))
+
+    # Render the confirmation page if GET request or validation fails
+    return render_template("entry/delete.html", entry=entry, form=form)
+

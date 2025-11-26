@@ -17,6 +17,18 @@
     {{ super() }}
     <span class="govuk-caption-l">Entry</span>
     <h1 class="govuk-heading-l">{{ entry.name }}</h1>
+
+    <div class="edit-entry-buttons">     
+      {{ govukButton({
+        'text': "Edit entry",
+        'href': url_for('register.entry.edit', entry_id=entry.id, register_id=entry.register.id)
+      }) }}
+            {{ govukButton({
+        'text': "Delete entry",
+        'classes': "govuk-button--secondary",
+        'href': url_for('register.entry.delete', entry_id=entry.id, register_id=entry.register.id)
+      }) }}
+    </div>
   </div>
 </div>
 {%- endblock -%}

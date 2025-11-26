@@ -148,7 +148,7 @@ def edit(register_id: UUID) -> str | Response:
         db.session.commit()
 
         flash("Successfully updated register", "success")
-        return redirect(url_for("register.index"))
+        return redirect(url_for("register.view", register_id=register_id))
 
     # Render the form page for GET requests or failed validation
     return render_template("register/edit.html", register=register, form=form)
@@ -173,9 +173,22 @@ def delete(register_id: UUID) -> str | Response:
     # Load the register to delete or return 404 if not found
     register = db.get_or_404(Register, register_id)
 
+    if register and register.entries:
+        flash(f"<b>You cannot delete a register with entries.", "Error")
+        return redirect(url_for("register.view", register_id=register_id))
+
     form = RegisterDeleteForm()
 
     if form.validate_on_submit():
+        error = None
+
+        if register.entries:
+            error = "This register has entries."
+
+        if error:
+            flash(f"<b>Could not delete register '{register.name}'</b>: {error}", "Error")
+            return redirect(url_for("register.index"))
+        
         # Remove the register from the database
         db.session.delete(register)
         db.session.commit()
