@@ -56,7 +56,7 @@ class Driver:
     def tear_down(self):
         self.browser.quit()
 
-    def create_new_register(self, name):
+    def create_new_register(self, name, price):
         self._navigate_to_registers()
 
         self._find_and_click(By.LINK_TEXT, "Create new register")
@@ -66,6 +66,9 @@ class Driver:
 
         name_field = self.browser.find_element(By.NAME, "name")
         name_field.send_keys(name)
+
+        price_field = self.browser.find_element(By.NAME, "price")
+        price_field.send_keys(price)
 
         self._find_and_click(By.NAME, "submit")
 
@@ -97,7 +100,7 @@ class Driver:
         self._navigate_to_registers()
         self._view_register(name)
 
-    def update_existing_register(self, name, new_name):
+    def update_existing_register(self, name, new_name, price):
         self._navigate_to_registers()
         self._view_register(name)
 
@@ -108,6 +111,12 @@ class Driver:
 
         name_field.clear()
         name_field.send_keys(new_name)
+
+        price_field = self.browser.find_element(By.NAME, "price")
+        # assert price_field.get_attribute("value") == price
+
+        price_field.clear()
+        price_field.send_keys(price)
 
         self._find_and_click(By.NAME, "submit")
 

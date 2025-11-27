@@ -21,9 +21,12 @@ from wtforms.fields import BooleanField, StringField, SubmitField
 from wtforms.validators import InputRequired, ValidationError
 
 from app.models import Register
-
+from uuid import UUID
 
 class RegisterForm(FlaskForm):
+    def __init__(self, register_id=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.register_id = register_id
     """
     A form used to create or edit a Register.
 
@@ -32,6 +35,10 @@ class RegisterForm(FlaskForm):
     name : StringField
         The human-readable name for the Register. This is required
         and must be unique across all Register records.
+    price : StringField
+        The price last paid for the land held in the register. This
+        is not required in the backend, but is on the site, and the
+        default value is 0.
     submit : SubmitField
         A standard submit button.
 
@@ -50,6 +57,12 @@ class RegisterForm(FlaskForm):
         "Name",
         widget=GovTextInput(),
         validators=[InputRequired(message="Enter a name")],
+    )
+
+    price = StringField(
+        "Price",
+        widget=GovTextInput(input_type="number"),
+        validators=[InputRequired(message="Enter a price")],
     )
 
     # A standard GOV.UK-styled submit button.
@@ -77,8 +90,21 @@ class RegisterForm(FlaskForm):
           and the error message is displayed to the user.
         """
         existing = Register.query.filter_by(name=field.data).first()
-        if existing:
+
+        if existing and self.register_id != existing.id:
             raise ValidationError("Name already in use")
+
+    def validate_price(self, field) -> bool:
+        try:
+            float(field.data)
+        except:
+            raise ValidationError("Invalid price")
+
+        if float(field.data) < 0:
+            raise ValidationError("Invalid price")
+
+        if float(field.data) > 2000000000:
+            raise ValidationError("Price too high")
 
 
 class RegisterDeleteForm(FlaskForm):
@@ -92,7 +118,7 @@ class RegisterDeleteForm(FlaskForm):
     ------
     confirm : BooleanField
         A checkbox that the user must tick to confirm deletion.
-        If left unticked, the validation will fail and deletion will not occur.
+        If left unchecked, the validation will fail and deletion will not occur.
     submit : SubmitField
         A GOV.UK-styled delete button.
     """

@@ -24,7 +24,7 @@ Notes for students:
 
 from uuid import UUID
 
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, url_for, send_file
 from werkzeug import Response
 
 from app import db
@@ -80,7 +80,7 @@ def create() -> str | Response:
     # We don't need to manually check request.form or HTML inputs.
     if form.validate_on_submit():
         # Create a new Register object with the submitted name
-        register = Register(name=form.name.data)
+        register = Register(name=form.name.data, price=form.price.data)
 
         # Stage the new record for insertion
         db.session.add(register)
@@ -135,14 +135,16 @@ def edit(register_id: UUID) -> str | Response:
     """
     # Load the register or show 404 if it doesn't exist
     register: Register = db.get_or_404(Register, register_id)
-    form = RegisterForm()
+    form = RegisterForm(register_id=register_id)
 
     if request.method == "GET":
         # Pre-fill the form with current data so user can edit it
         form.name.data = register.name
+        form.price.data = register.price
     elif form.validate_on_submit():
         # Copy validated form data into the Register object
         register.name = form.name.data
+        register.price = form.price.data
 
         # Persist changes to the database
         db.session.commit()
@@ -188,7 +190,7 @@ def delete(register_id: UUID) -> str | Response:
         if error:
             flash(f"<b>Could not delete register '{register.name}'</b>: {error}", "Error")
             return redirect(url_for("register.index"))
-        
+
         # Remove the register from the database
         db.session.delete(register)
         db.session.commit()
@@ -198,3 +200,27 @@ def delete(register_id: UUID) -> str | Response:
 
     # Render the confirmation page if GET request or validation fails
     return render_template("register/delete.html", register=register, form=form)
+
+import io
+
+@bp.route("/<uuid:register_id>/download", methods=["GET"])
+def download(register_id: UUID) -> str:
+    register = db.get_or_404(Register, register_id)
+
+    if register:
+        id = register.id
+        name = register.name
+        price = register.price
+        timestamp = register.last_updated
+
+        file_content = f"id, name, price, last_updated\n'{id}', '{name}', '{price}', '{timestamp}'"
+        buffer = io.BytesIO()
+        buffer.write(file_content.encode("utf-8"))
+        buffer.seek(0)
+
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name=f"{register_id}.csv",
+            mimetype="text/csv"
+        )

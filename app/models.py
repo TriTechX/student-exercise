@@ -16,7 +16,8 @@ Notes for Students:
 import uuid
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import ForeignKey, UniqueConstraint, DateTime, func, String
+import datetime
 
 # PostgreSQL UUID type for database columns
 from sqlalchemy.dialects.postgresql import UUID
@@ -69,9 +70,24 @@ class Register(Model):
 
     # Name column for the register
     name: Mapped[str] = mapped_column(
+        String(),
         nullable=False,  # Cannot be empty
         unique=True,  # Each register name must be unique
         index=True,  # Database index for faster search
+    )
+
+    price: Mapped[int] = mapped_column(
+        default=0,
+        nullable=False,
+        unique=False,
+        index=True
+    )
+
+    last_updated: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False
     )
 
     entries: Mapped[List["Entry"]] = relationship(
@@ -117,3 +133,34 @@ class Entry(Model):
     register: Mapped["Register"] = relationship("Register", back_populates="entries")
 
     __table_args__ = (UniqueConstraint("name", "register_id", name="_entry_name_register_uc"),)
+
+
+class Users(Model):
+    """
+    A simple Users table containing a unique UID for each user with
+    plain text indexed usernames and hashed argon2 passwords. The
+    hash is stored as a string and computed on the server.
+    """
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid = True),
+        primary_key = True,
+        default = uuid.uuid4
+    )
+
+    username: Mapped[str] = mapped_column(
+        nullable = False,
+        unique = True,
+        index = True
+    )
+
+    password: Mapped[str] = mapped_column(
+        nullable = False,
+        unique = False,
+        index = True
+    )
+
+    is_mod: Mapped[bool] = mapped_column(
+        nullable=True,
+        default=False
+    )

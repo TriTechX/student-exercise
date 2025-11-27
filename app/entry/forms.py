@@ -82,7 +82,7 @@ class EntryForm(FlaskForm):
         """
         existing = Entry.query.filter_by(register_id=self.register_id, name=field.data).first()
         if existing:
-            raise ValidationError("This entry already exists.")
+            raise ValidationError("Name already in use")
 
 
 class EntryDeleteForm(FlaskForm):
@@ -96,7 +96,7 @@ class EntryDeleteForm(FlaskForm):
     ------
     confirm : BooleanField
         A checkbox that the user must tick to confirm deletion.
-        If left unticked, the validation will fail and deletion will not occur.
+        If left unchecked, the validation will fail and deletion will not occur.
     submit : SubmitField
         A GOV.UK-styled delete button.
     """

@@ -12,6 +12,8 @@ from flask import (
 from flask_wtf.csrf import CSRFError  # type: ignore
 from werkzeug.exceptions import HTTPException
 
+from app import db
+from app.models import Register
 from app.main import bp
 from app.main.forms import CookiesForm
 
@@ -19,7 +21,8 @@ from app.main.forms import CookiesForm
 @bp.route("/", methods=["GET"])
 def index() -> str:
     """Render the index page."""
-    return render_template("main/index.html")
+    registers = db.session.execute(db.select(Register)).scalars().all()
+    return render_template("register/index.html", registers=registers) ## hide student exercise
 
 
 @bp.route("/accessibility", methods=["GET"])

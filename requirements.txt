@@ -104,3 +104,5 @@ wtforms==3.2.1
     # via
     #   flask-wtf
     #   govuk-frontend-wtf
+
+argon2-cffi

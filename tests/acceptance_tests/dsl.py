@@ -33,11 +33,11 @@ class Dsl:
         self.driver.tear_down()
 
     def ensure_existing_register(self, name=DEFAULT_REGISTER_NAME):
-        self.create_new_register(name)
+        self.create_new_register(name, 100)
         self.confirm_register_created(name)
 
-    def create_new_register(self, name=DEFAULT_REGISTER_NAME):
-        self.driver.create_new_register(self._encode_alias(name))
+    def create_new_register(self, name=DEFAULT_REGISTER_NAME, price=100):
+        self.driver.create_new_register(self._encode_alias(name), price)
 
     def confirm_register_created(self, name=DEFAULT_REGISTER_NAME):
         self.driver.confirm_register_created(self._decode_alias(name))
@@ -54,7 +54,7 @@ class Dsl:
     def update_existing_register(self, current_name=DEFAULT_REGISTER_NAME, new_name=""):
         current_name_alias = self._encode_alias(current_name)
         new_name_alias = self._encode_alias(new_name)
-        self.driver.update_existing_register(current_name_alias, new_name_alias)
+        self.driver.update_existing_register(current_name_alias, new_name_alias, 200)
 
     def confirm_register_updated(self, old_name=DEFAULT_REGISTER_NAME, new_name=""):
         old_name_alias = self._decode_alias(old_name)

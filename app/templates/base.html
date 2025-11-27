@@ -8,7 +8,7 @@
 
 {%- set assetPath = "/static/assets" -%}
 
-{%- block pageTitle -%}{%- if form and form.errors %}Error: {% endif -%}{{config['SERVICE_NAME']}} – GOV.UK{%- endblock -%}
+{%- block pageTitle -%}{%- if form and form.errors %}Error: {% endif -%}{{config['SERVICE_NAME']}} – {{ session.username }}{%- endblock -%}
 
 {%- block head -%}
   <meta name="description" content="{{config['SERVICE_NAME']}}">
@@ -116,6 +116,11 @@
         'href': url_for('register.index'),
         'text': "Registers",
         'active': true if url_for('register.index') in request.path else false
+      },
+      {
+        'href': session.username | default(None) and url_for('login.logout') or url_for('login.index'),
+        'text': session.username | default(None) and session.username or "Log In",
+        'active': true if url_for('login.index') in request.path else false
       }
     ]
   }) }}

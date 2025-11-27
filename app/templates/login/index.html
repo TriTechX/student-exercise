@@ -8,17 +8,19 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <form method="post" action="{{ url_for('register.edit', register=register, register_id=register.id) }}" novalidate>
-        {{ form.csrf_token}}
-        {{ form.name(params={
+    <h1 class="govuk-heading-l">Sign in</h1>
+    <form method="post" action="{{ url_for('login.index') }}" novalidate>
+        {{ form.csrf_token }}
+        {{ form.username(params={
             'spellcheck': true
         }) }}
-        {{ form.price }}
+        {{ form.password }}
         <div class="govuk-button-group">
             {{ form.submit(params={
             'preventDoubleClick': true
             }) }}
-            <a class="govuk-link" href="{{ url_for('register.view', register_id=register.id) }}">Cancel</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ url_for('login.create') }}">Sign Up</a>
+            <a class="govuk-link" href="{{ url_for('register.index') }}">Cancel</a>
         </div>
     </form>
   </div>
