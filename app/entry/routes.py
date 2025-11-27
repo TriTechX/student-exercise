@@ -14,7 +14,7 @@ typical CRUD pattern:
 
 from uuid import UUID
 
-from flask import flash, redirect, render_template, url_for, request
+from flask import flash, redirect, render_template, url_for, request, session
 from werkzeug import Response
 
 from app import db
@@ -25,12 +25,13 @@ from app.models import Entry
 
 @bp.route("/add", methods=["GET", "POST"])
 def add(register_id: UUID) -> str | Response:
+    if not session["is_mod"]: return redirect(url_for("main.index"))
     form = EntryForm(register_id=register_id)
 
     # Flask-WTF handles form validation and CSRF protection for us.
     # We don't need to manually check request.form or HTML inputs.
     if form.validate_on_submit():
-        entry = Entry(name=form.name.data, register_id=register_id)
+        entry = Entry(name=form.name.data, register_id=register_id, author=session["username"] or "Unknown")
         db.session.add(entry)
         db.session.commit()
         flash("Successfully added entry to register", "success")
@@ -63,6 +64,7 @@ def view(register_id: UUID, entry_id: UUID) -> str:
 
 @bp.route("/<uuid:entry_id>/edit", methods=["GET", "POST"])
 def edit(register_id: UUID, entry_id: UUID) -> str | Response:
+    if not session["is_mod"]: return redirect(url_for("main.index"))
     """
     Edit an existing Entry.
 
@@ -87,6 +89,7 @@ def edit(register_id: UUID, entry_id: UUID) -> str | Response:
     elif form.validate_on_submit():
         # Copy validated form data into the Register object
         entry.name = form.name.data
+        entry.author = session["username"] or "Unknown"
 
         # Persist changes to the database
         db.session.commit()
@@ -100,6 +103,7 @@ def edit(register_id: UUID, entry_id: UUID) -> str | Response:
 
 @bp.route("/<uuid:entry_id>/delete", methods=["GET", "POST"])
 def delete(register_id: UUID, entry_id: UUID) -> str | Response:
+    if not session["is_mod"]: return redirect(url_for("main.index"))
     """
     Delete an existing entry.
 

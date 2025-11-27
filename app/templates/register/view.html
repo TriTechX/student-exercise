@@ -24,7 +24,11 @@
     <span class="govuk-caption-l">Last Updated</span>
     <h2 class="govuk-heading-m">{{ register.last_updated }}</h2>
 
+    <span class="govuk-caption-l">Author</span>
+    <h2 class="govuk-heading-m">{{ register.author }}</h2>
+
     <div class="govuk-button-group">
+        {% if session.is_mod %}
       {{ govukButton({
         'text': "Edit register",
         'href': url_for('register.edit', register_id=register.id)
@@ -34,14 +38,17 @@
         'classes': "govuk-button--secondary",
         'href': url_for('register.delete', register_id=register.id)
       }) }}
+      {% endif %}
       <a class="govuk-link" href="{{ url_for('register.download', register_id=register.id)}}">Download</a>
     </div>
     <h1 class="govuk-heading-l">Entries</h1>
     <div class="govuk-button-group">
+      {% if session.is_mod %}
       {{ govukButton({
         'text': "Add new entry",
         'href': url_for('register.entry.add', register_id=register.id)
       }) }}
+      {% endif %}
     </div>
     <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
       {% for entry in register.entries %}

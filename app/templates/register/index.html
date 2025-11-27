@@ -10,8 +10,8 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <h1 class="govuk-heading-l">Registers</h1>
-    {% if session.username and not session.mod %}
+    <h1 class="govuk-heading-l">Register</h1>
+    {% if session.is_mod %}
       {{ govukButton({
         'text': "Create new register",
         'href': url_for('register.create')

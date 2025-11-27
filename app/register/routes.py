@@ -24,7 +24,7 @@ Notes for students:
 
 from uuid import UUID
 
-from flask import flash, redirect, render_template, request, url_for, send_file
+from flask import flash, redirect, render_template, request, url_for, send_file, session
 from werkzeug import Response
 
 from app import db
@@ -63,6 +63,7 @@ def index() -> str:
 
 @bp.route("/new", methods=["GET", "POST"])
 def create() -> str | Response:
+    if not session["is_mod"]: return redirect(url_for("main.index"))
     """
     Create a new Register.
 
@@ -80,7 +81,7 @@ def create() -> str | Response:
     # We don't need to manually check request.form or HTML inputs.
     if form.validate_on_submit():
         # Create a new Register object with the submitted name
-        register = Register(name=form.name.data, price=form.price.data)
+        register = Register(name=form.name.data, price=form.price.data, author=session["username"] or "Unknown")
 
         # Stage the new record for insertion
         db.session.add(register)
@@ -119,6 +120,7 @@ def view(register_id: UUID) -> str:
 
 @bp.route("/<uuid:register_id>/edit", methods=["GET", "POST"])
 def edit(register_id: UUID) -> str | Response:
+    if not session["is_mod"]: return redirect(url_for("main.index"))
     """
     Edit an existing Register.
 
@@ -145,6 +147,7 @@ def edit(register_id: UUID) -> str | Response:
         # Copy validated form data into the Register object
         register.name = form.name.data
         register.price = form.price.data
+        register.author = session["username"] or "Unknown"
 
         # Persist changes to the database
         db.session.commit()
@@ -158,6 +161,7 @@ def edit(register_id: UUID) -> str | Response:
 
 @bp.route("/<uuid:register_id>/delete", methods=["GET", "POST"])
 def delete(register_id: UUID) -> str | Response:
+    if not session["is_mod"]: return redirect(url_for("main.index"))
     """
     Delete an existing Register.
 

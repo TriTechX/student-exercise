@@ -18,12 +18,21 @@ def index() -> str | Response:
 
     if form.validate_on_submit():
         user = Users(username=form.username.data, password=form.password.data)
+        userInDb = db.session.execute(
+            db.select(Users).filter_by(username=form.username.data)
+        ).scalar_one_or_none()
 
         ## sign in as this user and store the session token
-        session["user_id"] = str(user.id)
+        session["user_id"] = str(userInDb.id)
         session["username"] = str(user.username)
+        session["is_mod"] = userInDb.is_mod
 
-        flash(f"Welcome back, {form.username.data}.", "success")
+        welcomeSuffix = ""
+
+        if session["is_mod"]:
+            welcomeSuffix = "You have administrator access to modify the registry."
+
+        flash(f"Welcome back, {form.username.data}. {welcomeSuffix}", "success")
         return redirect(url_for("main.index"))
 
     return render_template("login/index.html", form=form)
@@ -47,6 +56,7 @@ def logout() -> str | Response:
     if session:
         session["user_id"] = None
         session["username"] = None
+        session["is_mod"] = False
 
         flash("Successfully logged out.", "Success")
         return redirect(url_for("main.index"))

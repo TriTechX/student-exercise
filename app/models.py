@@ -96,6 +96,13 @@ class Register(Model):
         order_by="Entry.name",
     )
 
+    author: Mapped[str] = mapped_column(
+        default="Unknown",
+        nullable=False,
+        unique=False,
+        index=True
+    )
+
 
 class Entry(Model):
     """
@@ -122,6 +129,11 @@ class Entry(Model):
         nullable=False,  # Cannot be empty
         unique=False,  # Entry names are not globally unique, but should be unique on a given register
         index=True,  # Database index for faster search
+    )
+
+    author: Mapped[str] = mapped_column(
+        nullable=False,
+        default="Unknown"
     )
 
     # Foreign keys

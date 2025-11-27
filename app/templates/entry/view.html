@@ -18,7 +18,11 @@
     <span class="govuk-caption-l">Entry</span>
     <h1 class="govuk-heading-l">{{ entry.name }}</h1>
 
-    <div class="edit-entry-buttons">     
+    <span class="govuk-caption-l">Author</span>
+    <h1 class="govuk-heading-m">{{ entry.author }}</h1>
+
+    <div class="edit-entry-buttons">
+      {% if session.is_mod %}
       {{ govukButton({
         'text': "Edit entry",
         'href': url_for('register.entry.edit', entry_id=entry.id, register_id=entry.register.id)
@@ -28,6 +32,7 @@
         'classes': "govuk-button--secondary",
         'href': url_for('register.entry.delete', entry_id=entry.id, register_id=entry.register.id)
       }) }}
+      {% endif %}
     </div>
   </div>
 </div>
