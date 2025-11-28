@@ -131,6 +131,23 @@ class Entry(Model):
         index=True,  # Database index for faster search
     )
 
+    owner: Mapped[str] = mapped_column(
+        nullable=False,
+        default="Unknown"
+    )
+
+    price: Mapped[int] = mapped_column(
+        default=0,
+        nullable=False,
+        unique=False,
+        index=True
+    )
+
+    extra_notes: Mapped[str] = mapped_column(
+        nullable=False,
+        default="No extra details"
+    )
+
     author: Mapped[str] = mapped_column(
         nullable=False,
         default="Unknown"

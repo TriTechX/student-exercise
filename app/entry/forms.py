@@ -15,9 +15,10 @@ from flask_wtf import FlaskForm
 from govuk_frontend_wtf.wtforms_widgets import (
     GovSubmitInput,
     GovTextInput,
-    GovCheckboxInput
+    GovCheckboxInput,
+    GovCharacterCount
 )
-from wtforms.fields import StringField, SubmitField, BooleanField
+from wtforms.fields import StringField, SubmitField, BooleanField, TextAreaField
 from wtforms.validators import InputRequired, ValidationError
 
 from app.models import Entry
@@ -50,6 +51,23 @@ class EntryForm(FlaskForm):
         "Name",
         widget=GovTextInput(),
         validators=[InputRequired(message="Enter a name")],
+    )
+
+    price = StringField(
+        "Price paid",
+        widget=GovTextInput(input_type="number"),
+        validators=[InputRequired(message="Enter a price")],
+    )
+
+    owner = StringField(
+        "Owner",
+        widget=GovTextInput(),
+        validators=[InputRequired(message="Enter an owner")],
+    )
+
+    extra_notes = TextAreaField(
+        "Extra details",
+        widget=GovCharacterCount()
     )
 
     # A standard GOV.UK-styled submit button.

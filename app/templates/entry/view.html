@@ -18,7 +18,16 @@
     <span class="govuk-caption-l">Entry</span>
     <h1 class="govuk-heading-l">{{ entry.name }}</h1>
 
-    <span class="govuk-caption-l">Author</span>
+    <span class="govuk-caption-l">Owner</span>
+    <h1 class="govuk-heading-m">{{ entry.owner }}</h1>
+
+    <span class="govuk-caption-l">Price paid</span>
+    <h1 class="govuk-heading-m">{{"£{:,.2f}".format(entry.price)}}</h1>
+
+    <span class="govuk-caption-l">Extra notes</span>
+    <h1 class="govuk-heading-m">{{ entry.extra_notes }}</h1>
+
+    <span class="govuk-caption-l">Author</span >
     <h1 class="govuk-heading-m">{{ entry.author }}</h1>
 
     <div class="edit-entry-buttons">
